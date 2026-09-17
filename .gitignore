@@ -28,6 +28,7 @@ qrc_*.cpp
 ui_*.h
 Makefile*
 *build-*
+!scripts/build-macos-intel.sh
 *.qm
 
 # QtCreator

@@ -1,0 +1,4 @@
+interface:
+  display_name: "二次开发 Flameshot AI"
+  short_description: "扩展截图、OCR、二维码、翻译和 AI 功能并完成 macOS 验证"
+  default_prompt: "使用 $extend-flameshot-ai 在当前仓库实现所需功能并完成构建验证。"

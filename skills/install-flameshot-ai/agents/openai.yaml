@@ -1,0 +1,4 @@
+interface:
+  display_name: "安装 Flameshot AI"
+  short_description: "检查 macOS 依赖，构建、备份、安装并验证 Flameshot AI 应用"
+  default_prompt: "使用 $install-flameshot-ai 在这台 Mac 上构建、安装并验证应用。"
