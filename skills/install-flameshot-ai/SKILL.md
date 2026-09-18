@@ -30,5 +30,6 @@ Do not delete the backup until the newly installed app has been tested. Do not c
 1. Check `file "/Applications/Flameshot AI.app/Contents/MacOS/flameshot"` for the expected architecture.
 2. Run `codesign --verify --deep --strict "/Applications/Flameshot AI.app"`.
 3. Launch the app and ask the user to grant Screen Recording under System Settings if macOS requires it.
-4. Test capture on the current Space, Chinese tooltips, invalid QR feedback, OCR translation, and AI summary.
-5. If Gatekeeper blocks first launch, direct the user to System Settings → Privacy & Security to explicitly allow the app; do not disable Gatekeeper globally.
+4. On macOS 12.3+, test a short GIF and MP4. System audio requires macOS 13+; microphone permission is requested only when enabled; control-level snapping optionally requires Accessibility permission.
+5. Test capture on the current Space, magnetic selection, Chinese tooltips, invalid QR feedback, OCR translation, and AI summary.
+6. If Gatekeeper blocks first launch, direct the user to System Settings → Privacy & Security to explicitly allow the app; do not disable Gatekeeper globally.

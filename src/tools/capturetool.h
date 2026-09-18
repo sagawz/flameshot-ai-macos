@@ -51,6 +51,8 @@ public:
         TYPE_TRANSLATE = 24,
         TYPE_QRCODE = 25,
         TYPE_AI_SUMMARY = 26,
+        TYPE_RECORD_GIF = 27,
+        TYPE_RECORD_VIDEO = 28,
     };
     Q_ENUM(Type);
 
@@ -81,7 +83,9 @@ public:
         REQ_DECREASE_TOOL_SIZE,
         REQ_TRANSLATE_SELECTION,
         REQ_RECOGNIZE_QR,
-        REQ_AI_SUMMARY
+        REQ_AI_SUMMARY,
+        REQ_RECORD_GIF,
+        REQ_RECORD_VIDEO
     };
 
     explicit CaptureTool(QObject* parent = nullptr)

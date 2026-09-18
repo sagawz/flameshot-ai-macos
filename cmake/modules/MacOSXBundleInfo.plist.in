@@ -40,6 +40,10 @@
 	<string>1</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>
 	<string>Application requires access to save screenshots to your gallery</string>
+	<key>NSScreenCaptureUsageDescription</key>
+	<string>Flameshot AI needs screen recording access to capture screenshots, GIFs, and videos.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Flameshot AI uses the microphone only when microphone recording is enabled.</string>
 	<key>NSSupportsAutomaticGraphicsSwitching</key>
 	<true/>
 </dict>

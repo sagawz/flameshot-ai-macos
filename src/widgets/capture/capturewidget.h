@@ -16,6 +16,7 @@
 #include "capturetoolobjects.h"
 #include "src/tools/capturecontext.h"
 #include "src/tools/capturetool.h"
+#include "src/services/captureregionservice.h"
 #include "src/utils/confighandler.h"
 #include "src/widgets/capture/magnifierwidget.h"
 #include "src/widgets/capture/selectionwidget.h"
@@ -37,6 +38,8 @@ class UpdateNotificationWidget;
 class UtilityPanel;
 class SidePanelWidget;
 class AiService;
+class RecordingService;
+class RecordingControlWidget;
 
 class CaptureWidget : public QWidget
 {
@@ -116,6 +119,8 @@ private:
     void updateCursor();
     void updateSelectionState();
     void updateTool(CaptureTool* tool);
+    void updateSnapCandidates(const QPoint& localPos);
+    void cycleSnapCandidate(int direction);
     void updateLayersPanel();
     void pushToolToStack();
     void makeChild(QWidget* w);
@@ -123,6 +128,7 @@ private:
     void translateSelection();
     void recognizeQrSelection();
     void summarizeSelection();
+    void startRecording(bool gif);
     QImage selectedImageForAnalysis() const;
 
     QList<QShortcut*> newShortcut(const QKeySequence& key,
@@ -188,7 +194,15 @@ private:
     SelectionWidget* m_selection;
     MagnifierWidget* m_magnifier;
     AiService* m_aiService;
+    RecordingService* m_recordingService;
+    QPointer<RecordingControlWidget> m_recordingControl;
     QString m_helpMessage;
+
+    QVector<CaptureRegionCandidate> m_snapCandidates;
+    int m_snapCandidateIndex = -1;
+    bool m_snapTemporarilyDisabled = false;
+    bool m_snapLocked = false;
+    QRect m_pendingSnapGeometry;
 
     SelectionWidget::SideType m_mouseOverHandle;
 

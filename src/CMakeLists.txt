@@ -139,6 +139,12 @@ target_sources(
         main.cpp
         services/aiservice.h
         services/aiservice.cpp
+        services/captureregionservice.h
+        services/recordingservice.h
+        widgets/recordingsettingsdialog.h
+        widgets/recordingsettingsdialog.cpp
+        widgets/recordingcontrolwidget.h
+        widgets/recordingcontrolwidget.cpp
         services/nativevisionservice.h
         widgets/textresultdialog.h
         widgets/textresultdialog.cpp)
@@ -147,13 +153,17 @@ if (APPLE)
     target_sources(
             flameshot
             PRIVATE services/nativevisionservice_mac.mm
+                    services/captureregionservice_mac.mm
+                    services/recordingservice_mac.mm
                     utils/macwindowutils.h
                     utils/macwindowutils.mm)
     set_source_files_properties(
-            services/nativevisionservice_mac.mm utils/macwindowutils.mm
+            services/nativevisionservice_mac.mm services/captureregionservice_mac.mm services/recordingservice_mac.mm utils/macwindowutils.mm
             PROPERTIES COMPILE_FLAGS "-fobjc-arc")
 else ()
-    target_sources(flameshot PRIVATE services/nativevisionservice_stub.cpp)
+    target_sources(flameshot PRIVATE services/nativevisionservice_stub.cpp
+                                    services/captureregionservice_stub.cpp
+                                    services/recordingservice_stub.cpp)
 endif ()
 
 target_include_directories(
@@ -242,8 +252,15 @@ if (APPLE)
     target_link_libraries(
             flameshot
             qhotkey
+            "-framework AppKit"
             "-framework Foundation"
             "-framework ImageIO"
+            "-framework AVFoundation"
+            "-framework CoreMedia"
+            "-framework CoreVideo"
+            "-framework VideoToolbox"
+            "-framework UniformTypeIdentifiers"
+            "-weak_framework ScreenCaptureKit"
             "-framework Vision"
     )
     add_custom_command(

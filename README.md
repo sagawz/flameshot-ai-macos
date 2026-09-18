@@ -10,6 +10,9 @@
 | 截图翻译 | 先使用 macOS Vision 识别选区文字，再调用 OpenAI、DeepSeek 或其他兼容服务翻译为中文 | 图片本机处理；识别出的文字会发给 API |
 | 二维码识别 | 使用 macOS Vision 识别截图选区内的二维码，并支持复制结果 | 本机 |
 | AI 总结 | OCR 后调用兼容 OpenAI Responses API 的服务生成中文摘要 | 图片本机处理；识别出的文字会发给 API |
+| 智能磁吸选区 | 自动识别控件、对话框、App 窗口和屏幕；无辅助功能权限时回退到窗口 | 本机 |
+| GIF 录制 | 将选区录制为 GIF，可设置帧率、尺寸、循环、光标和时长 | 本机 |
+| MP4 视频录制 | H.264/HEVC、帧率、尺寸、码率、系统声音、麦克风和暂停继续 | 本机 |
 | macOS 体验修复 | 避免截图时切换到其他桌面，修正屏幕录制权限重复提示，并让识别错误以非阻塞方式显示 | 本机 |
 
 详细使用和隐私说明见 [智能功能说明](docs/SMART_FEATURES_ZH.md)。
@@ -45,7 +48,15 @@ QT_ROOT="/你的/Qt/5.15.2/clang_64" ./scripts/install-macos.sh
 QT_ROOT="/你的/Qt/5.15.2/clang_64" ./scripts/build-macos-intel.sh
 ```
 
-生成结果位于 `build-smart/src/flameshot.app`。安装脚本会将其复制为 `/Applications/Flameshot AI.app`。应用采用本机临时签名，未经过 Apple 公证；首次启动若被 Gatekeeper 拦截，请在“系统设置 → 隐私与安全性”中确认打开。截图前还需授予“屏幕录制”权限。
+生成结果位于 `build-smart/src/flameshot.app`。安装脚本会将其复制为 `/Applications/Flameshot AI.app`。应用采用本机临时签名，未经过 Apple 公证；首次启动若被 Gatekeeper 拦截，请在“系统设置 → 隐私与安全性”中确认打开。截图前还需授予“屏幕录制”权限。智能控件磁吸会按需申请“辅助功能”权限；视频启用麦克风时才申请麦克风权限。
+
+普通截图、OCR、翻译、二维码和 AI 总结支持 macOS 10.15+。GIF 与 MP4 录制需要 macOS 12.3+；系统声音需要 macOS 13+；鼠标点击高亮需要 macOS 15+。旧系统仍可正常使用其他功能。
+
+## 智能选区与录制
+
+鼠标悬停时会显示候选区域。`Tab` 向外切换，`Shift+Tab` 反向切换，单击确认；直接拖动仍是自由选区，按住 `Space` 可暂时关闭磁吸。
+
+选区确认后，工具栏中的“录制 GIF”和“录制视频”会打开设置。录制开始前有 3 秒倒计时，录制中可暂停、继续、停止或取消；成功后可在 Finder 中查看文件。应用自身覆盖层、倒计时和控制条会从成片中排除。
 
 ## AI 配置
 

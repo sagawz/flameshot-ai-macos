@@ -172,6 +172,8 @@ static QMap<QString, QSharedPointer<KeySequence>> recognizedShortcuts = {
     SHORTCUT("TYPE_TRANSLATE"           ,   "L"                     ),
     SHORTCUT("TYPE_QRCODE"              ,   "Q"                     ),
     SHORTCUT("TYPE_AI_SUMMARY"          ,   "U"                     ),
+    SHORTCUT("TYPE_RECORD_GIF"          ,   "G"                     ),
+    SHORTCUT("TYPE_RECORD_VIDEO"        ,   "V"                     ),
 };
 // clang-format on
 

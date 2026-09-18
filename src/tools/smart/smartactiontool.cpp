@@ -15,6 +15,8 @@ QIcon SmartActionTool::icon(const QColor& background, bool inEditor) const
 {
     Q_UNUSED(inEditor)
     const char* iconName = m_type == TYPE_QRCODE ? "qr-code.svg"
+                          : m_type == TYPE_RECORD_GIF ? "record-gif.svg"
+                          : m_type == TYPE_RECORD_VIDEO ? "record-video.svg"
                           : m_type == TYPE_AI_SUMMARY ? "ai-summary.svg"
                                                       : "translate.svg";
     return QIcon(iconPath(background) + iconName);
@@ -29,6 +31,10 @@ QString SmartActionTool::name() const
             return tr("QR code");
         case TYPE_AI_SUMMARY:
             return tr("AI summary");
+        case TYPE_RECORD_GIF:
+            return tr("Record GIF");
+        case TYPE_RECORD_VIDEO:
+            return tr("Record video");
         default:
             return {};
     }
@@ -43,6 +49,10 @@ QString SmartActionTool::description() const
             return tr("Recognize QR codes in the selection");
         case TYPE_AI_SUMMARY:
             return tr("Summarize text in the selection with AI");
+        case TYPE_RECORD_GIF:
+            return tr("Record the selection as an animated GIF");
+        case TYPE_RECORD_VIDEO:
+            return tr("Record the selection as an MP4 video");
         default:
             return {};
     }
@@ -67,5 +77,9 @@ void SmartActionTool::pressed(CaptureContext& context)
         emit requestAction(REQ_RECOGNIZE_QR);
     } else if (m_type == TYPE_AI_SUMMARY) {
         emit requestAction(REQ_AI_SUMMARY);
+    } else if (m_type == TYPE_RECORD_GIF) {
+        emit requestAction(REQ_RECORD_GIF);
+    } else if (m_type == TYPE_RECORD_VIDEO) {
+        emit requestAction(REQ_RECORD_VIDEO);
     }
 }

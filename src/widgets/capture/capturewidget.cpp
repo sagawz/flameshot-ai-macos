@@ -16,6 +16,9 @@
 #include "src/core/flameshot.h"
 #include "src/core/qguiappcurrentscreen.h"
 #include "src/services/aiservice.h"
+#include "src/services/recordingservice.h"
+#include "src/widgets/recordingcontrolwidget.h"
+#include "src/widgets/recordingsettingsdialog.h"
 #include "src/services/nativevisionservice.h"
 #include "src/tools/toolfactory.h"
 #include "src/utils/colorutils.h"
@@ -36,6 +39,8 @@
 #include "src/widgets/updatenotificationwidget.h"
 #include "src/widgets/textresultdialog.h"
 #include <QApplication>
+#include <QAbstractButton>
+#include <QCursor>
 #include <QDateTime>
 #include <QDebug>
 #include <QDesktopWidget>
@@ -46,6 +51,12 @@
 #include <QPainter>
 #include <QProgressDialog>
 #include <QScreen>
+#include <QStandardPaths>
+#include <QSettings>
+#include <QFileDialog>
+#include <QEventLoop>
+#include <QProcess>
+#include <QTimer>
 #include <QShortcut>
 #include <draggablewidgetmaker.h>
 
@@ -134,6 +145,7 @@ CaptureWidget::CaptureWidget(const CaptureRequest& req,
   , m_selection(nullptr)
   , m_magnifier(nullptr)
   , m_aiService(new AiService(this))
+  , m_recordingService(new RecordingService(this))
   , m_existingObjectIsChanged(false)
   , m_startMove(false)
   , m_toolSizeByKeyboard(0)
@@ -158,6 +170,18 @@ CaptureWidget::CaptureWidget(const CaptureRequest& req,
     m_uiColor = m_config.uiColor();
     m_contrastUiColor = m_config.contrastUiColor();
     setMouseTracking(true);
+#if defined(Q_OS_MACOS)
+    QSettings permissionSettings;
+    if (!CaptureRegionService::accessibilityTrusted(false) &&
+        !permissionSettings.value(QStringLiteral("smartSelection/accessibilityPrompted"),
+                                  false).toBool()) {
+        permissionSettings.setValue(QStringLiteral("smartSelection/accessibilityPrompted"),
+                                    true);
+        QTimer::singleShot(700, this, []() {
+            CaptureRegionService::accessibilityTrusted(true);
+        });
+    }
+#endif
     initContext(fullScreen, req);
 #if (defined(Q_OS_WIN) || defined(Q_OS_MACOS))
     // Top left of the whole set of screens
@@ -343,7 +367,9 @@ void CaptureWidget::initButtons()
     // new smart actions visible without asking users to reset their settings.
     for (CaptureTool::Type type : { CaptureTool::TYPE_TRANSLATE,
                                     CaptureTool::TYPE_QRCODE,
-                                    CaptureTool::TYPE_AI_SUMMARY }) {
+                                    CaptureTool::TYPE_AI_SUMMARY,
+                                    CaptureTool::TYPE_RECORD_GIF,
+                                    CaptureTool::TYPE_RECORD_VIDEO }) {
         if (!visibleButtonTypes.contains(type)) {
             visibleButtonTypes.append(type);
         }
@@ -577,6 +603,45 @@ void CaptureWidget::paintEvent(QPaintEvent* paintEvent)
     // draw inactive region
     drawInactiveRegion(&painter);
 
+    if (!m_snapLocked && !m_snapTemporarilyDisabled &&
+        m_snapCandidateIndex >= 0 &&
+        m_snapCandidateIndex < m_snapCandidates.size()) {
+        const auto& candidate = m_snapCandidates.at(m_snapCandidateIndex);
+        QRect localRect(candidate.geometry.topLeft() - mapToGlobal({}),
+                        candidate.geometry.size());
+        painter.save();
+        painter.setBrush(Qt::NoBrush);
+        painter.setPen(QPen(QColor(0, 174, 255), 2));
+        painter.drawRect(localRect.adjusted(1, 1, -1, -1));
+        QString label;
+        switch (candidate.type) {
+            case CaptureRegionCandidate::Type::Control:
+                label = tr("Control");
+                break;
+            case CaptureRegionCandidate::Type::Dialog:
+                label = tr("Dialog");
+                break;
+            case CaptureRegionCandidate::Type::Window:
+                label = candidate.applicationName.isEmpty()
+                  ? tr("Window")
+                  : candidate.applicationName;
+                break;
+            case CaptureRegionCandidate::Type::Screen:
+                label = tr("Screen");
+                break;
+        }
+        const QRect labelRect(localRect.left(),
+                              qMax(0, localRect.top() - 24),
+                              qMax(100, painter.fontMetrics().horizontalAdvance(label) + 16),
+                              22);
+        painter.fillRect(labelRect, QColor(0, 120, 190, 220));
+        painter.setPen(Qt::white);
+        painter.drawText(labelRect.adjusted(8, 0, -4, 0),
+                         Qt::AlignVCenter | Qt::AlignLeft,
+                         label);
+        painter.restore();
+    }
+
     if (!isActiveWindow()) {
         drawErrorMessage(
           tr("Flameshot has lost focus. Keyboard shortcuts won't "
@@ -702,6 +767,13 @@ void CaptureWidget::mousePressEvent(QMouseEvent* e)
     } else if (e->button() == Qt::LeftButton) {
         m_mouseIsClicked = true;
 
+        if (!m_activeButton && !m_snapTemporarilyDisabled &&
+            !m_snapLocked && m_snapCandidateIndex >= 0 &&
+            m_snapCandidateIndex < m_snapCandidates.size()) {
+            m_pendingSnapGeometry =
+              m_snapCandidates.at(m_snapCandidateIndex).geometry;
+        }
+
         // Click using a tool excluding tool MOVE
         if (startDrawObjectTool(m_mousePressedPos)) {
             // return if success
@@ -768,12 +840,21 @@ void CaptureWidget::mouseMoveEvent(QMouseEvent* e)
 
     m_context.mousePos = e->pos();
     if (e->buttons() != Qt::LeftButton) {
+        if (!m_activeButton && !m_snapLocked && !m_snapTemporarilyDisabled) {
+            updateSnapCandidates(e->pos());
+        }
         updateTool(activeButtonTool());
         updateCursor();
         return;
     }
 
     // The rest assumes that left mouse button is clicked
+    if (!m_pendingSnapGeometry.isNull() &&
+        (e->pos() - m_mousePressedPos).manhattanLength() >
+          MOUSE_DISTANCE_TO_START_MOVING) {
+        // A drag always means the original free-form selection behavior.
+        m_pendingSnapGeometry = QRect();
+    }
     if (!m_activeButton && m_panel->activeLayerIndex() >= 0) {
         // Move existing object
         if (!m_startMove) {
@@ -861,6 +942,19 @@ void CaptureWidget::mouseReleaseEvent(QMouseEvent* e)
     m_mouseIsClicked = false;
     m_activeToolIsMoved = false;
 
+    if (e->button() == Qt::LeftButton && !m_pendingSnapGeometry.isNull()) {
+        QRect localRect(m_pendingSnapGeometry.topLeft() - mapToGlobal({}),
+                        m_pendingSnapGeometry.size());
+        localRect = localRect.intersected(rect());
+        if (localRect.isValid()) {
+            m_selection->setGeometry(localRect);
+            m_selection->show();
+            m_snapLocked = true;
+            emit m_selection->geometrySettled();
+        }
+    }
+    m_pendingSnapGeometry = QRect();
+
     updateSelectionState();
     updateCursor();
 }
@@ -890,6 +984,16 @@ void CaptureWidget::setToolSize(int size)
 
 void CaptureWidget::keyPressEvent(QKeyEvent* e)
 {
+    if (e->key() == Qt::Key_Tab && !m_snapLocked &&
+        !m_snapCandidates.isEmpty()) {
+        cycleSnapCandidate(e->modifiers() & Qt::ShiftModifier ? -1 : 1);
+        e->accept();
+        return;
+    }
+    if (e->key() == Qt::Key_Space && !m_snapLocked) {
+        m_snapTemporarilyDisabled = true;
+        update();
+    }
     // If the key is a digit, change the tool size
     bool ok;
     int digit = e->text().toInt(&ok);
@@ -924,6 +1028,33 @@ void CaptureWidget::keyReleaseEvent(QKeyEvent* e)
         m_adjustmentButtonPressed = false;
         updateCursor();
     }
+    if (e->key() == Qt::Key_Space) {
+        m_snapTemporarilyDisabled = false;
+        updateSnapCandidates(m_context.mousePos);
+    }
+}
+
+void CaptureWidget::updateSnapCandidates(const QPoint& localPos)
+{
+#if defined(Q_OS_MACOS)
+    m_snapCandidates =
+      CaptureRegionService::candidatesAt(mapToGlobal(localPos));
+    m_snapCandidateIndex = m_snapCandidates.isEmpty() ? -1 : 0;
+    update();
+#else
+    Q_UNUSED(localPos)
+#endif
+}
+
+void CaptureWidget::cycleSnapCandidate(int direction)
+{
+    if (m_snapCandidates.isEmpty()) {
+        return;
+    }
+    m_snapCandidateIndex =
+      (m_snapCandidateIndex + direction + m_snapCandidates.size()) %
+      m_snapCandidates.size();
+    update();
 }
 
 void CaptureWidget::wheelEvent(QWheelEvent* e)
@@ -1293,6 +1424,12 @@ void CaptureWidget::handleToolSignal(CaptureTool::Request r)
         case CaptureTool::REQ_AI_SUMMARY:
             summarizeSelection();
             break;
+        case CaptureTool::REQ_RECORD_GIF:
+            startRecording(true);
+            break;
+        case CaptureTool::REQ_RECORD_VIDEO:
+            startRecording(false);
+            break;
         default:
             break;
     }
@@ -1362,6 +1499,151 @@ void CaptureWidget::recognizeQrSelection()
 #if defined(Q_OS_MACOS)
     configureMacCaptureWindow(dialog);
 #endif
+}
+
+void CaptureWidget::startRecording(bool gif)
+{
+    if (!RecordingService::isAvailable()) {
+        showAnalysisMessage(this,
+                            QMessageBox::Information,
+                            tr("Recording unavailable"),
+                            tr("GIF and video recording require macOS 12.3 or later."));
+        return;
+    }
+    QRect selected = m_selection->isVisible() ? m_selection->geometry() : rect();
+    if (selected.width() < 2 || selected.height() < 2) {
+        showAnalysisMessage(this,
+                            QMessageBox::Warning,
+                            tr("Invalid recording area"),
+                            tr("Select a larger area before recording."));
+        return;
+    }
+
+    RecordingSettings settings;
+    const auto type = gif ? RecordingSettings::OutputType::Gif
+                          : RecordingSettings::OutputType::Video;
+    if (!RecordingSettingsDialog::getSettings(type, &settings, this)) {
+        return;
+    }
+    QString baseDir = m_config.savePath();
+    if (baseDir.isEmpty()) {
+        baseDir = QStandardPaths::writableLocation(QStandardPaths::MoviesLocation);
+    }
+    const QString suffix = gif ? QStringLiteral("gif") : QStringLiteral("mp4");
+    const QString suggested =
+      QStringLiteral("%1/Flameshot_%2.%3")
+        .arg(baseDir,
+             QDateTime::currentDateTime().toString(QStringLiteral("yyyy-MM-dd_HH-mm-ss")),
+             suffix);
+    const QString path = QFileDialog::getSaveFileName(
+      this,
+      gif ? tr("Save GIF recording") : tr("Save video recording"),
+      suggested,
+      gif ? tr("GIF image (*.gif)") : tr("MP4 video (*.mp4)"));
+    if (path.isEmpty()) {
+        return;
+    }
+
+    if (!m_recordingControl) {
+        m_recordingControl = new RecordingControlWidget();
+#if defined(Q_OS_MACOS)
+        configureMacCaptureWindow(m_recordingControl);
+#endif
+        connect(m_recordingControl,
+                &RecordingControlWidget::pauseRequested,
+                m_recordingService,
+                &RecordingService::pause);
+        connect(m_recordingControl,
+                &RecordingControlWidget::resumeRequested,
+                m_recordingService,
+                &RecordingService::resume);
+        connect(m_recordingControl,
+                &RecordingControlWidget::stopRequested,
+                m_recordingService,
+                &RecordingService::stop);
+        connect(m_recordingControl,
+                &RecordingControlWidget::cancelRequested,
+                m_recordingService,
+                &RecordingService::cancel);
+        connect(m_recordingService,
+                &RecordingService::pausedChanged,
+                m_recordingControl,
+                &RecordingControlWidget::setPaused);
+        connect(m_recordingService,
+                &RecordingService::elapsedChanged,
+                m_recordingControl,
+                &RecordingControlWidget::setElapsed);
+        connect(m_recordingService,
+                &RecordingService::finished,
+                this,
+                [this](const QString& savedPath) {
+                    m_recordingControl->hide();
+                    auto* notification = new SystemNotification(qApp);
+                    notification->sendMessage(
+                      tr("Recording saved as %1").arg(savedPath), savedPath);
+                    notification->deleteLater();
+                    auto* box = new QMessageBox(QMessageBox::Information,
+                                                tr("Recording saved"),
+                                                tr("Recording saved as %1").arg(savedPath),
+                                                QMessageBox::Open | QMessageBox::Ok);
+                    box->setAttribute(Qt::WA_DeleteOnClose);
+                    connect(box, &QMessageBox::buttonClicked, box,
+                            [savedPath](QAbstractButton* button) {
+                        if (button && button->text().contains(QObject::tr("Open"))) {
+                            QProcess::startDetached(QStringLiteral("open"),
+                                                    { QStringLiteral("-R"), savedPath });
+                        }
+                    });
+                    box->show();
+                    close();
+                });
+        connect(m_recordingService,
+                &RecordingService::failed,
+                this,
+                [this](const QString& message) {
+                    if (m_recordingControl) {
+                        m_recordingControl->hide();
+                    }
+                    showAnalysisMessage(nullptr,
+                                        QMessageBox::Critical,
+                                        tr("Recording failed"),
+                                        message);
+                    close();
+                });
+    }
+
+    hide();
+    for (int count = 3; count > 0; --count) {
+        auto* countdown = new QLabel(QString::number(count));
+        countdown->setWindowFlag(Qt::Tool, true);
+        countdown->setWindowFlag(Qt::WindowStaysOnTopHint, true);
+        countdown->setAlignment(Qt::AlignCenter);
+        countdown->setStyleSheet(QStringLiteral(
+          "font-size: 72px; color: white; background: rgba(0,0,0,160); padding: 24px;"));
+        countdown->adjustSize();
+        countdown->move(QCursor::pos() - QPoint(countdown->width() / 2,
+                                                countdown->height() / 2));
+        countdown->show();
+#if defined(Q_OS_MACOS)
+        configureMacCaptureWindow(countdown);
+#endif
+        QEventLoop loop;
+        QTimer::singleShot(1000, &loop, &QEventLoop::quit);
+        loop.exec();
+        countdown->close();
+        delete countdown;
+    }
+
+    m_recordingControl->reset();
+    m_recordingControl->adjustSize();
+    m_recordingControl->move(
+      QGuiApplication::primaryScreen()->availableGeometry().topLeft() + QPoint(20, 20));
+    m_recordingControl->show();
+    const QRect globalRegion(mapToGlobal(selected.topLeft()), selected.size());
+    if (!m_recordingService->start(globalRegion, path, settings)) {
+        m_recordingControl->hide();
+        show();
+    }
 }
 
 /**
@@ -1520,9 +1802,11 @@ void CaptureWidget::initShortcuts()
     newShortcut(
       QKeySequence(ConfigHandler().shortcut("TYPE_REDO")), this, SLOT(redo()));
 
-    newShortcut(QKeySequence(ConfigHandler().shortcut("TYPE_TOGGLE_PANEL")),
-                this,
-                SLOT(togglePanel()));
+    QKeySequence panelKey(ConfigHandler().shortcut("TYPE_TOGGLE_PANEL"));
+    if (panelKey == QKeySequence(Qt::Key_Space)) {
+        panelKey = QKeySequence(Qt::SHIFT | Qt::Key_Space);
+    }
+    newShortcut(panelKey, this, SLOT(togglePanel()));
 
     newShortcut(QKeySequence(ConfigHandler().shortcut("TYPE_RESIZE_LEFT")),
                 m_selection,

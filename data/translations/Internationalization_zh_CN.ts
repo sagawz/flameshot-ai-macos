@@ -3013,6 +3013,10 @@ You may need to escape the &apos;#&apos; sign as in &apos;\#FFF&apos;</source>
     <message><source>Recognize and translate text in the selection</source><translation>识别并翻译选区中的文字</translation></message>
     <message><source>Recognize QR codes in the selection</source><translation>识别选区中的二维码</translation></message>
     <message><source>Summarize text in the selection with AI</source><translation>使用 AI 总结选区中的文字</translation></message>
+    <message><source>Record GIF</source><translation>录制 GIF</translation></message>
+    <message><source>Record video</source><translation>录制视频</translation></message>
+    <message><source>Record the selection as an animated GIF</source><translation>将选区录制为 GIF 动图</translation></message>
+    <message><source>Record the selection as an MP4 video</source><translation>将选区录制为 MP4 视频</translation></message>
 </context>
 <context>
     <name>CaptureWidget</name>
@@ -3021,6 +3025,63 @@ You may need to escape the &apos;#&apos; sign as in &apos;\#FFF&apos;</source>
     <message><source>No QR code found</source><translation>未找到二维码</translation></message>
     <message><source>No QR code was found in the selection.</source><translation>选区中没有识别到二维码。</translation></message>
     <message><source>QR code result</source><translation>二维码识别结果</translation></message>
+    <message><source>Control</source><translation>控件</translation></message>
+    <message><source>Dialog</source><translation>对话框</translation></message>
+    <message><source>Window</source><translation>窗口</translation></message>
+    <message><source>Screen</source><translation>屏幕</translation></message>
+    <message><source>Recording unavailable</source><translation>录制不可用</translation></message>
+    <message><source>GIF and video recording require macOS 12.3 or later.</source><translation>GIF 和视频录制需要 macOS 12.3 或更高版本。</translation></message>
+    <message><source>Invalid recording area</source><translation>录制区域无效</translation></message>
+    <message><source>Select a larger area before recording.</source><translation>请先选择一个更大的区域。</translation></message>
+    <message><source>Save GIF recording</source><translation>保存 GIF 录制</translation></message>
+    <message><source>Save video recording</source><translation>保存视频录制</translation></message>
+    <message><source>GIF image (*.gif)</source><translation>GIF 图像 (*.gif)</translation></message>
+    <message><source>MP4 video (*.mp4)</source><translation>MP4 视频 (*.mp4)</translation></message>
+    <message><source>Recording saved</source><translation>录制已保存</translation></message>
+    <message><source>Recording saved as %1</source><translation>录制已保存为 %1</translation></message>
+    <message><source>Open</source><translation>打开</translation></message>
+    <message><source>Recording failed</source><translation>录制失败</translation></message>
+</context>
+<context>
+    <name>RecordingSettingsDialog</name>
+    <message><source>GIF recording settings</source><translation>GIF 录制设置</translation></message>
+    <message><source>Video recording settings</source><translation>视频录制设置</translation></message>
+    <message><source>Frame rate</source><translation>帧率</translation></message>
+    <message><source>Original</source><translation>原始尺寸</translation></message>
+    <message><source>Long edge 1080</source><translation>长边 1080</translation></message>
+    <message><source>Long edge 720</source><translation>长边 720</translation></message>
+    <message><source>50%</source><translation>50%</translation></message>
+    <message><source>Custom</source><translation>自定义</translation></message>
+    <message><source>Resolution</source><translation>分辨率</translation></message>
+    <message><source>Custom width</source><translation>自定义宽度</translation></message>
+    <message><source>Custom height</source><translation>自定义高度</translation></message>
+    <message><source> seconds</source><translation> 秒</translation></message>
+    <message><source>Maximum duration</source><translation>最长时长</translation></message>
+    <message><source>Infinite</source><translation>无限循环</translation></message>
+    <message><source>Loop count</source><translation>循环次数</translation></message>
+    <message><source>Codec</source><translation>编码</translation></message>
+    <message><source>Automatic</source><translation>自动</translation></message>
+    <message><source>Bit rate</source><translation>码率</translation></message>
+    <message><source>Custom bit rate</source><translation>自定义码率</translation></message>
+    <message><source>Record system audio</source><translation>录制系统声音</translation></message>
+    <message><source>Record microphone</source><translation>录制麦克风</translation></message>
+    <message><source>Microphone</source><translation>麦克风</translation></message>
+    <message><source>Show mouse cursor</source><translation>显示鼠标指针</translation></message>
+    <message><source>Highlight mouse clicks</source><translation>高亮鼠标点击</translation></message>
+    <message><source>Mouse click highlighting requires macOS 15 or later.</source><translation>鼠标点击高亮需要 macOS 15 或更高版本。</translation></message>
+</context>
+<context>
+    <name>RecordingControlWidget</name>
+    <message><source>Pause</source><translation>暂停</translation></message>
+    <message><source>Resume</source><translation>继续</translation></message>
+    <message><source>Recording</source><translation>正在录制</translation></message>
+    <message><source>Stop</source><translation>停止</translation></message>
+    <message><source>Cancel</source><translation>取消</translation></message>
+</context>
+<context>
+    <name>RecordingService</name>
+    <message><source>Recording is only available on macOS 12.3 or later.</source><translation>录制功能仅支持 macOS 12.3 或更高版本。</translation></message>
+    <message><source>Microphone permission was not granted.</source><translation>未获得麦克风权限。</translation></message>
 </context>
 <context>
     <name>AiService</name>
@@ -3053,5 +3114,30 @@ You may need to escape the &apos;#&apos; sign as in &apos;\#FFF&apos;</source>
 <context>
     <name>QObject</name>
     <message><source>Recognizing selection…</source><translation>正在识别选区…</translation></message>
+    <message><source>GIF recording settings</source><translation>GIF 录制设置</translation></message>
+    <message><source>Video recording settings</source><translation>视频录制设置</translation></message>
+    <message><source>Frame rate</source><translation>帧率</translation></message>
+    <message><source>Original</source><translation>原始尺寸</translation></message>
+    <message><source>Long edge 1080</source><translation>长边 1080</translation></message>
+    <message><source>Long edge 720</source><translation>长边 720</translation></message>
+    <message><source>50%</source><translation>50%</translation></message>
+    <message><source>Custom</source><translation>自定义</translation></message>
+    <message><source>Resolution</source><translation>分辨率</translation></message>
+    <message><source>Custom width</source><translation>自定义宽度</translation></message>
+    <message><source>Custom height</source><translation>自定义高度</translation></message>
+    <message><source> seconds</source><translation> 秒</translation></message>
+    <message><source>Maximum duration</source><translation>最长时长</translation></message>
+    <message><source>Infinite</source><translation>无限循环</translation></message>
+    <message><source>Loop count</source><translation>循环次数</translation></message>
+    <message><source>Codec</source><translation>编码</translation></message>
+    <message><source>Automatic</source><translation>自动</translation></message>
+    <message><source>Bit rate</source><translation>码率</translation></message>
+    <message><source>Custom bit rate</source><translation>自定义码率</translation></message>
+    <message><source>Record system audio</source><translation>录制系统声音</translation></message>
+    <message><source>Record microphone</source><translation>录制麦克风</translation></message>
+    <message><source>Microphone</source><translation>麦克风</translation></message>
+    <message><source>Show mouse cursor</source><translation>显示鼠标指针</translation></message>
+    <message><source>Highlight mouse clicks</source><translation>高亮鼠标点击</translation></message>
+    <message><source>Mouse click highlighting requires macOS 15 or later.</source><translation>鼠标点击高亮需要 macOS 15 或更高版本。</translation></message>
 </context>
 </TS>

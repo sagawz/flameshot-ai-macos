@@ -45,6 +45,8 @@
         <file>img/material/black/translate.svg</file>
         <file>img/material/black/qr-code.svg</file>
         <file>img/material/black/ai-summary.svg</file>
+        <file>img/material/black/record-gif.svg</file>
+        <file>img/material/black/record-video.svg</file>
         <file>img/material/black/undo-variant.svg</file>
         <file>img/material/black/circlecount-outline.svg</file>
         <file>img/material/black/filepath.svg</file>
@@ -95,6 +97,8 @@
         <file>img/material/white/translate.svg</file>
         <file>img/material/white/qr-code.svg</file>
         <file>img/material/white/ai-summary.svg</file>
+        <file>img/material/white/record-gif.svg</file>
+        <file>img/material/white/record-video.svg</file>
         <file>img/material/white/undo-variant.svg</file>
         <file>img/material/black/move_down.svg</file>
         <file>img/material/black/move_up.svg</file>

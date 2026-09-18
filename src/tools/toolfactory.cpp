@@ -68,6 +68,8 @@ CaptureTool* ToolFactory::CreateTool(CaptureTool::Type t, QObject* parent)
         case CaptureTool::TYPE_TRANSLATE:
         case CaptureTool::TYPE_QRCODE:
         case CaptureTool::TYPE_AI_SUMMARY:
+        case CaptureTool::TYPE_RECORD_GIF:
+        case CaptureTool::TYPE_RECORD_VIDEO:
             return new SmartActionTool(t, parent);
         default:
             return nullptr;
