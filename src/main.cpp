@@ -109,11 +109,15 @@ int main(int argc, char* argv[])
 
         QTranslator translator, qtTranslator;
         QStringList trPaths = PathInfo::translationsPaths();
-        // This customized build is distributed as the Simplified Chinese
-        // edition. Explicitly use zh_CN because Qt 5 on macOS may report the
-        // system language as zh-Hans-CN and fail to match the zh_CN catalog.
-        const QLocale interfaceLocale(QLocale::Chinese, QLocale::China);
-        QLocale::setDefault(interfaceLocale);
+        // Follow the operating-system language. Qt 5 on macOS may expose
+        // Simplified Chinese as zh-Hans-CN, while the bundled catalog is named
+        // zh_CN, so normalize only that Chinese locale instead of forcing it
+        // for every user.
+        QLocale interfaceLocale = QLocale::system();
+        if (interfaceLocale.language() == QLocale::Chinese &&
+            interfaceLocale.script() == QLocale::SimplifiedChineseScript) {
+            interfaceLocale = QLocale(QLocale::Chinese, QLocale::China);
+        }
 
         for (const QString& path : trPaths) {
             bool match = translator.load(interfaceLocale,

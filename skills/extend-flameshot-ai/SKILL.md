@@ -18,7 +18,7 @@ description: Continue secondary development of the Flameshot AI macOS fork. Use 
 - Keep orchestration and user feedback in `src/widgets/capture/capturewidget.*`.
 - Keep OCR and QR logic in `NativeVisionService`; provide a non-macOS stub when changing its interface.
 - Keep remote AI requests in `AiService`. Send recognized text only, never screenshot pixels, unless the user explicitly changes the privacy design.
-- Put user-facing strings behind Qt translation and update Chinese translations/tooltips.
+- Put user-facing strings behind Qt translation and update Chinese translations/tooltips. Keep the repository build following the operating-system language; never force Chinese globally.
 
 ## Protect macOS behavior
 

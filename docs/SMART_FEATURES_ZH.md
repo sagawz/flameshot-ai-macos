@@ -2,7 +2,7 @@
 
 本分支基于 Flameshot 12.1.0，增加以下能力：
 
-- 修复 macOS 应用包无法找到中文翻译的问题，并将 `.qm` 翻译文件复制到 App Resources。
+- 界面默认跟随操作系统语言；修复 macOS `zh-Hans-CN` 无法匹配简体中文翻译的问题，并将 `.qm` 翻译文件复制到 App Resources。
 - 在截图选区工具栏中增加“翻译”“二维码”“AI 总结”三个入口。
 - 使用 macOS Vision 在本机执行中英文 OCR 和二维码识别。
 - 翻译和总结支持 OpenAI、DeepSeek 以及提供 OpenAI-compatible Chat Completions 接口的其他服务，只发送 OCR 识别出的文字，不上传截图。
