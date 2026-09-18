@@ -42,6 +42,9 @@
         <file>img/material/black/square-outline.svg</file>
         <file>img/material/black/square.svg</file>
         <file>img/material/black/text.svg</file>
+        <file>img/material/black/translate.svg</file>
+        <file>img/material/black/qr-code.svg</file>
+        <file>img/material/black/ai-summary.svg</file>
         <file>img/material/black/undo-variant.svg</file>
         <file>img/material/black/circlecount-outline.svg</file>
         <file>img/material/black/filepath.svg</file>
@@ -89,6 +92,9 @@
         <file>img/material/white/square-outline.svg</file>
         <file>img/material/white/square.svg</file>
         <file>img/material/white/text.svg</file>
+        <file>img/material/white/translate.svg</file>
+        <file>img/material/white/qr-code.svg</file>
+        <file>img/material/white/ai-summary.svg</file>
         <file>img/material/white/undo-variant.svg</file>
         <file>img/material/black/move_down.svg</file>
         <file>img/material/black/move_up.svg</file>

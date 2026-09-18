@@ -14,9 +14,9 @@ bool SmartActionTool::closeOnButtonPressed() const
 QIcon SmartActionTool::icon(const QColor& background, bool inEditor) const
 {
     Q_UNUSED(inEditor)
-    const char* iconName = m_type == TYPE_QRCODE ? "graphics.svg"
-                          : m_type == TYPE_AI_SUMMARY ? "text.svg"
-                                                      : "format-text.svg";
+    const char* iconName = m_type == TYPE_QRCODE ? "qr-code.svg"
+                          : m_type == TYPE_AI_SUMMARY ? "ai-summary.svg"
+                                                      : "translate.svg";
     return QIcon(iconPath(background) + iconName);
 }
 

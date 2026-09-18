@@ -169,9 +169,9 @@ static QMap<QString, QSharedPointer<KeySequence>> recognizedShortcuts = {
     SHORTCUT("TYPE_SIZEINCREASE"        ,                           ),
     SHORTCUT("TYPE_SIZEDECREASE"        ,                           ),
     SHORTCUT("TYPE_CIRCLECOUNT"         ,                           ),
-    SHORTCUT("TYPE_TRANSLATE"           ,                           ),
-    SHORTCUT("TYPE_QRCODE"              ,                           ),
-    SHORTCUT("TYPE_AI_SUMMARY"          ,                           ),
+    SHORTCUT("TYPE_TRANSLATE"           ,   "L"                     ),
+    SHORTCUT("TYPE_QRCODE"              ,   "Q"                     ),
+    SHORTCUT("TYPE_AI_SUMMARY"          ,   "U"                     ),
 };
 // clang-format on
 

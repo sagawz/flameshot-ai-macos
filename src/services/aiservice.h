@@ -20,5 +20,4 @@ public:
     void run(Task task, const QString& recognizedText, QWidget* parentWindow);
 
 private:
-    QString requestApiKey(QWidget* parentWindow) const;
 };

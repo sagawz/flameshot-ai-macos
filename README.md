@@ -7,7 +7,7 @@
 | 功能 | 说明 | 数据处理 |
 | --- | --- | --- |
 | 简体中文界面 | 默认启用 `zh_CN`，补齐 macOS 应用包内翻译资源与工具提示 | 本机 |
-| 截图翻译 | 先使用 macOS Vision 识别选区文字，再调用兼容 OpenAI Responses API 的服务翻译为中文 | 图片本机处理；识别出的文字会发给 API |
+| 截图翻译 | 先使用 macOS Vision 识别选区文字，再调用 OpenAI、DeepSeek 或其他兼容服务翻译为中文 | 图片本机处理；识别出的文字会发给 API |
 | 二维码识别 | 使用 macOS Vision 识别截图选区内的二维码，并支持复制结果 | 本机 |
 | AI 总结 | OCR 后调用兼容 OpenAI Responses API 的服务生成中文摘要 | 图片本机处理；识别出的文字会发给 API |
 | macOS 体验修复 | 避免截图时切换到其他桌面，修正屏幕录制权限重复提示，并让识别错误以非阻塞方式显示 | 本机 |
@@ -49,13 +49,30 @@ QT_ROOT="/你的/Qt/5.15.2/clang_64" ./scripts/build-macos-intel.sh
 
 ## AI 配置
 
-翻译或 AI 总结首次使用时会提示输入 API 密钥，密钥仅用于当前进程，不写入配置文件。也可以在启动前设置：
+翻译或 AI 总结首次使用时会让你选择 OpenAI、DeepSeek 或其他 OpenAI-compatible 服务，然后输入 API 密钥。密钥仅用于当前进程，不写入配置文件。文字输入、翻译、二维码识别、AI 总结分别使用 `T`、`L`、`Q`、`U`，并有不同图标。
+
+OpenAI 环境变量：
 
 ```sh
 export OPENAI_API_KEY="你的密钥"
 export OPENAI_MODEL="gpt-5.6-terra"
 # 可选，默认为 https://api.openai.com/v1
 export OPENAI_BASE_URL="https://api.openai.com/v1"
+```
+
+DeepSeek 只需设置：
+
+```sh
+export DEEPSEEK_API_KEY="你的 DeepSeek 密钥"
+```
+
+默认使用 `https://api.deepseek.com/v1` 和 `deepseek-chat`。其他兼容服务可使用：
+
+```sh
+export AI_API_KEY="你的密钥"
+export AI_BASE_URL="https://服务地址/v1"
+export AI_MODEL="模型名称"
+export AI_API_STYLE="chat_completions" # 或 responses
 ```
 
 ## 二次开发

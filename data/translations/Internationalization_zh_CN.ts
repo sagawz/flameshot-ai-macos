@@ -3024,8 +3024,18 @@ You may need to escape the &apos;#&apos; sign as in &apos;\#FFF&apos;</source>
 </context>
 <context>
     <name>AiService</name>
-    <message><source>OpenAI API key</source><translation>OpenAI API 密钥</translation></message>
-    <message><source>Enter an API key for this request. The key is not saved:</source><translation>请输入本次请求使用的 API 密钥，密钥不会被保存：</translation></message>
+    <message><source>AI service</source><translation>AI 服务</translation></message>
+    <message><source>Choose the service for this request:</source><translation>请选择本次请求使用的服务：</translation></message>
+    <message><source>DeepSeek</source><translation>DeepSeek</translation></message>
+    <message><source>OpenAI</source><translation>OpenAI</translation></message>
+    <message><source>Other compatible service</source><translation>其他兼容服务</translation></message>
+    <message><source>Compatible AI service</source><translation>兼容的 AI 服务</translation></message>
+    <message><source>API base URL (including /v1):</source><translation>API 基础地址（包含 /v1）：</translation></message>
+    <message><source>Model name:</source><translation>模型名称：</translation></message>
+    <message><source>AI API key</source><translation>AI API 密钥</translation></message>
+    <message><source>Enter the API key for this request. The key is not saved:</source><translation>请输入本次请求使用的 API 密钥，密钥不会被保存：</translation></message>
+    <message><source>AI configuration incomplete</source><translation>AI 配置不完整</translation></message>
+    <message><source>API key, base URL, and model are required.</source><translation>必须提供 API 密钥、基础地址和模型名称。</translation></message>
     <message><source>No text found</source><translation>未找到文字</translation></message>
     <message><source>No recognizable text was found in the selection.</source><translation>选区中没有可识别的文字。</translation></message>
     <message><source>Processing with AI…</source><translation>AI 正在处理…</translation></message>
